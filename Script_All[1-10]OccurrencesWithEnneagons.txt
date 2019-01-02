@@ -1,0 +1,156 @@
+Private Sub Button_Click()
+
+Dim rng As Range
+Dim myFile As String, myFilePiData As String
+Dim sPI_Data As String, sTriplet As String
+Dim nOffset As Integer
+Dim sTriplets As String
+
+nOffset = 2
+
+myFilePiData = "F:\Development\Divinity\1000000.txt"
+myFileOut = "C:\All[1-10]OccurrencesWithEnneagons.txt" ' or nonagons
+    
+Open myFilePiData For Input As #1
+Line Input #1, sPI_Data
+Close #1
+
+Open myFileOut For Output As #1
+
+For nOccurrence = 1 To 10
+    For i = 0 To 9
+        For j = 0 To 9
+            For k = 0 To 9              
+                sTriplet = CStr(i) & CStr(j) & CStr(k)
+               
+                If nOccurrence = 1 And (sTriplet = "141" Or sTriplet = "159" Or sTriplet = "265" Or sTriplet = "358" Or sTriplet = "415" Or sTriplet = "535" Or sTriplet = "592" Or sTriplet = "653" Or sTriplet = "926" Or sTriplet = "589") Then
+                     Print #1, "Special triplet: " & sTriplet
+                Else
+                
+                nPos = 0
+                For l = 1 To nOccurrence
+                nPos = InStr(nPos + 1, sPI_Data, sTriplet)
+                If nPos = 0 Then Exit For
+                Next l
+              
+                If Val(nPos - nOffset) < 1000 Then
+                    sTriplets = Get9TripletsFromString(Mid(sPI_Data, nPos - 12, 27))
+                    Print #1, nOccurrence & " : " & CStr(nPos - nOffset) & " : " & Get9Geometricals(sTriplets)
+                Else
+                     sTriplets = Get9TripletsFromString(Mid(sPI_Data, nPos - 12, 27))
+                     Print #1, nOccurrence & " : " & GetROOT2(Val(nPos - nOffset)) & " : " & Get9Geometricals(sTriplets)
+                End If
+                
+                End If
+              
+            Next k
+        Next j
+    Next i
+Next nOccurrence
+
+Close #1
+End Sub
+
+Public Function Get9TripletsFromString(strPIString As String)
+
+Dim strTriplet1 As String
+Dim strTriplet2 As String
+Dim strTriplet3 As String
+Dim strTriplet4 As String
+Dim strTriplet5 As String
+Dim strTriplet6 As String
+Dim strTriplet7 As String
+Dim strTriplet8 As String
+Dim strTriplet9 As String
+
+strTriplet1 = Mid(strPIString, 1, 3)
+strTriplet2 = Mid(strPIString, 4, 3)
+strTriplet3 = Mid(strPIString, 7, 3)
+strTriplet4 = Mid(strPIString, 10, 3)
+strTriplet5 = Mid(strPIString, 13, 3)
+strTriplet6 = Mid(strPIString, 16, 3)
+strTriplet7 = Mid(strPIString, 19, 3)
+strTriplet8 = Mid(strPIString, 22, 3)
+strTriplet9 = Mid(strPIString, 25, 3)
+
+Get9TripletsFromString = strTriplet1 & "-" & strTriplet2 & "-" & _
+                         strTriplet3 & "-" & strTriplet4 & "-{" & _
+                         strTriplet5 & "}-" & strTriplet6 & "-" & _
+                         strTriplet7 & "-" & strTriplet8 & "-" & _
+                         strTriplet9
+End Function
+
+Function Get9Geometricals(Triplets As String) As String
+
+Dim Center As Integer
+Dim Pair As String
+Dim PairC As String ' plus center
+Dim Square As String
+Dim SquareC As String
+Dim Hexagon As String
+Dim HexagonC As String
+Dim Octagon As String
+Dim OctagonC As String
+
+Center = Val(Mid(Triplets, 18, 3))
+Pair = Val(Mid(Triplets, 13, 3)) + Val(Mid(Triplets, 23, 3))
+PairC = Val(Pair) + Center
+Square = Val(Mid(Triplets, 9, 3)) + Val(Mid(Triplets, 13, 3)) + Val(Mid(Triplets, 23, 3)) + Val(Mid(Triplets, 27, 3))
+SquareC = Val(Square) + Center
+Hexagon = Val(Mid(Triplets, 5, 3)) + Val(Mid(Triplets, 9, 3)) + Val(Mid(Triplets, 13, 3)) + Val(Mid(Triplets, 23, 3)) + Val(Mid(Triplets, 27, 3)) + Val(Mid(Triplets, 31, 3))
+HexagonC = Val(Hexagon) + Center
+Octagon = Val(Mid(Triplets, 1, 3)) + Val(Mid(Triplets, 5, 3)) + Val(Mid(Triplets, 9, 3)) + Val(Mid(Triplets, 13, 3)) + Val(Mid(Triplets, 23, 3)) + Val(Mid(Triplets, 27, 3)) + Val(Mid(Triplets, 31, 3)) + Val(Mid(Triplets, 35, 3))
+OctagonC = Val(Octagon) + Center
+
+Get9Geometricals = Triplets & ", 2: " & Pair & ", 3: " & PairC & ", 4: " & Square _
+                 & ", 5: " & SquareC & ", 6: " & Hexagon _
+                  & ", 7: " & HexagonC & ", 8: " & Octagon & ", 9: " & OctagonC
+End Function
+
+Public Function GetROOT2(intNumber As Integer) As String
+
+Dim dblRoot As Double
+Dim intPos As Integer
+
+dblRoot = intNumber / 3
+intPos = InStr(Val(dblRoot), ".")
+
+If intPos = 0 Then
+    If CInt(Val(dblRoot)) < 1000 Then
+        GetROOT2 = Val(intNumber) & " (" & Val(dblRoot) & ", A)"
+    Else
+        GetROOT2 = Val(intNumber) & " (" & Val(dblRoot) & ", A; " & GetSubROOT(CInt(Val(dblRoot))) & ")"
+    End If
+ElseIf Mid(Val(dblRoot), intPos + 1, 1) = 3 Then
+    If CInt(Left(Val(dblRoot), intPos - 1)) < 1000 Then
+        GetROOT2 = Val(intNumber) & " (" & Left(Val(dblRoot), intPos - 1) & ", B)"
+    Else
+        GetROOT2 = Val(intNumber) & " (" & Left(Val(dblRoot), intPos - 1) & ", B; " & GetSubROOT(CInt(Left(Val(dblRoot), intPos - 1))) & ")"
+    End If
+ElseIf Mid(Val(dblRoot), intPos + 1, 1) = 6 Then
+    If CStr(Left(Val(dblRoot), intPos - 1) + 1) < 1000 Then
+        GetROOT2 = Val(intNumber) & " (" & CStr(Left(Val(dblRoot), intPos - 1) + 1) & ", C)"
+    Else
+        GetROOT2 = Val(intNumber) & " (" & CStr(Left(Val(dblRoot), intPos - 1) + 1) & ", C; " & GetSubROOT(CInt(CStr(Left(Val(dblRoot), intPos - 1) + 1))) & ")"
+    End If
+End If
+
+End Function
+
+Public Function GetSubROOT(intNumber As Integer) As String
+
+Dim dblRoot As Double
+Dim intPos As Integer
+
+dblRoot = intNumber / 3
+intPos = InStr(Val(dblRoot), ".")
+
+If intPos = 0 Then
+    GetSubROOT = Val(dblRoot) & ", A"
+ElseIf Mid(Val(dblRoot), intPos + 1, 1) = 3 Then
+    GetSubROOT = Left(Val(dblRoot), intPos - 1) & ", B"
+ElseIf Mid(Val(dblRoot), intPos + 1, 1) = 6 Then
+    GetSubROOT = CStr(Left(Val(dblRoot), intPos - 1) + 1) & ", C"
+End If
+
+End Function
